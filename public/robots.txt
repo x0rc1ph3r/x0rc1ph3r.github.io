@@ -1,2 +1,0 @@
-User-agent: *
-Sitemap: https://farmansk.github.io/sitemap.xml
