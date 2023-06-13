@@ -401,7 +401,67 @@ I managed to solve a variety of challenges from various categories.</p>
 
 <h3>Blockchain</h3>
 <h5>To the MOOON!</h5>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/blockchain/moon.png loading=lazy height="500" width="400">
 <p>This was a weird challenge. It provided a solidity file. You have to exploit it to get the transaction hash which should be XORed with the given hex to get the flag. There are many flaws here, as TX hash depends on the number of the trancsactions from the address and the function. We can exploit this in many ways.</p>
+
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sol" data-lang="sol">
+<span style="color: aqua;">pragma</span> solidity <span style="color: aqua;">^0.6.0;</span>
+
+<span style="color: aqua;">contract</span> <span style="color: lime;">TTMCoin</span> {
+	<span style="color: aqua;">uint</span> public supply = <span style="color: lime;">10</span>;
+	<span style="color: aqua;">uint</span> public price = <span style="color: lime;">10</span> <span style="color: lime;">Wei</span>;
+
+	<span style="color: aqua;">string</span> public name = <span style="color: lime;">"To the Moon Coin"</span>;
+    <span style="color: aqua;">string</span> public symbol = <span style="color: lime;">"TTMCOIN"</span>;
+	<span style="color: aqua;">mapping</span> (<span style="color: aqua;">address</span> => <span style="color: aqua;">uint</span>) public balanceOf;
+
+	<span style="color: aqua;">uint</span> priceToBeat = <span style="color: lime;">11</span> <span style="color: lime;">Wei</span>;
+	<span style="color: aqua;">bool</span> public challIsSolved = <span style="color: aqua;">false</span>;
+
+	<span style="color: aqua;">function</span> setPrice() public {
+		price = supply * <span style="color: lime;">1</span> <span style="color: lime;">Wei</span>;
+	}
+
+	<span style="color: aqua;">function</span> buy(<span style="color: aqua;">uint</span> _amount) public <span style="color: aqua;">payable</span> {
+		<span style="color: aqua;">require</span>(_amount <= supply, <span style="color: lime;">"If this prints, the purchase amount is greater than the supply!"</span>);
+		
+		<span style="color: aqua;">uint</span> _tokensBought = msg.value / price;
+		balanceOf[msg.sender] += _tokensBought;
+		supply -= _tokensBought;
+	}
+
+	<span style="color: aqua;">function</span> solve() public {
+		<span style="color: aqua;">require</span>(price > priceToBeat, <span style="color: lime;">"You have... NOT gone to the moon"</span>);
+		challIsSolved = <span style="color: aqua;">true</span>;
+	}
+}
+</code></pre></div>
+<p>The function buy() checks _amount &lt;= supply, but _tokensBought is taken from msg.value. So, If we pass amount 10 and msg.value 1000, It results in integer overflow. Now we can call the setPrice() function and solve() function to get the hash.</p>
+<p>As I told there are many ways, just set the uint priceToBeat to 1 wei instead of 11 wei and now deploy and call the setPrice() function and solve() function to get the hash. It will be the same hash. As the contract is not deployed, we can just modify the contract. That is why I called it weird.</p>
+<p>XOR the hash with the given hex:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+<span class="line"><span class="k">def</span> <span class="nf">xor_string_with_hex</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">hex_value</span><span class="p">):</span></span>
+<span class="line">    <span class="c1"># Convert string to bytes</span></span>
+<span class="line">    <span class="n">string_bytes</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span></span>
+<span class="line"></span>
+<span class="line">    <span class="c1"># Convert hex value to bytes</span></span>
+<span class="line">    <span class="n">hex_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="nb">fromhex</span><span class="p">(</span><span class="n">hex_value</span><span class="p">))</span></span>
+<span class="line"></span>
+<span class="line">    <span class="c1"># XOR operation byte by byte</span></span>
+<span class="line">    <span class="n">result_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">x</span> <span class="o">^</span> <span class="n">y</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">string_bytes</span><span class="p">,</span> <span class="n">hex_bytes</span><span class="p">))</span></span>
+<span class="line"></span>
+<span class="line">    <span class="c1"># Convert result bytes back to string</span></span>
+<span class="line">    <span class="n">result_string</span> <span class="o">=</span> <span class="n">result_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span></span>
+<span class="line"></span>
+<span class="line">    <span class="k">return</span> <span class="n">result_string</span></span>
+<span class="line"></span>
+<span class="line"><span class="n">string_val</span> <span class="o">=</span> <span class="s1">"9a51d4efe2f23f207e48c5b0f7463d7349150059603809493ce1669e73cdbd94"</span></span>
+<span class="line"><span class="n">hex_value</span> <span class="o">=</span> <span class="s1">"575105531e4f120e1c6d115d5d126d5d4e3a43590f59074439425a525616515f5b4e4c5b000057434d475b416f4e5b57473c0848694158095b56173b170a5d51"</span></span>
+<span class="line"></span>
+<span class="line"><span class="n">result</span> <span class="o">=</span> <span class="n">xor_string_with_hex</span><span class="p">(</span><span class="n">string_val</span><span class="p">,</span> <span class="n">hex_value</span><span class="p">)</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></span>
+</code></pre></div>
+<p>n00bz{why_wont_my_wallet_underflow}</p>
 
 
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
