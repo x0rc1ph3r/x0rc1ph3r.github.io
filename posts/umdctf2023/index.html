@@ -186,9 +186,75 @@
     <i class="fas fa-fw fa-coffee"></i>1 min read
   </span><a href="https://farmansk.github.io/categories/ctf/" class="badge rounded-pill text-white bg-primary post-taxonomy">CTF</a><a href="https://farmansk.github.io/categories/writeups/" class="badge rounded-pill text-white bg-primary post-taxonomy">WriteUps</a><a href="https://farmansk.github.io/categories/security/" class="badge rounded-pill text-white bg-primary post-taxonomy">Security</a><a href="https://farmansk.github.io/tags/misc/" class="badge rounded-pill text-white bg-primary post-taxonomy">Misc</a></div>
 <div class="post-content mb-3"><p>Sup?!</p>
-<p>Hey, there! After a bit gap, I’m back with CSAW CTF in Qualifers round problems, I played this CTF along with Invaders team and ended up at #5 in India region.
-I solved 2 Misc challenges – catTheFlag, ezMaze.</p>
-<h4 id="cattheflag">catTheFlag</h4>
+<p>Hey, there! After a bit gap, I’m back with UMD CTF. I played this CTF along with Invaders0x1 team.
+I only remember few Crypto challenges that I solved because all others were basic stuff.</p>
+<h3 id="Crypto">Crypto</h3>
+<h5 id="BulbEuler">BulbEuler</h5>
+<p>The challenge provided a sage file and an output file.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sage" data-lang="sage">
+<span class="line"><span class="c1"># This is the code that was given in bulb.sage</span></span>
+<span class="line"><span class="kn">FLAG</span> <span class="o">=</span> <span class="nb">open</span>(<span class="s1">'flag.txt'</span>, <span class="s1">'r'</span>).<span class="n">read</span>()</span>
+
+<span class="line"><span class="kn">flag_bytes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="kn">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="kn">FLAG</span><span class="p">]</span></span>
+<span class="line"><span class="kn">flag_bits</span> <span class="o">=</span> <span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span><span class="s1">{num:08b}</span></span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="kn">flag_bytes</span><span class="p">])</span></span>
+
+<span class="line"><span class="kn">p</span> <span class="o">=</span> <span class="n">random_prime</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">256</span><span class="p">)</span></span>
+<span class="line"><span class="kn">G</span> <span class="o">=</span> <span class="n">GF</span><span class="p">(</span><span class="kn">p</span><span class="p">,</span> <span class="n">modulus</span><span class="o">=</span><span class="s1">"primitive"</span><span class="p">)</span></span>
+<span class="line"><span class="kn">g</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">gen</span><span class="p">()</span></span>
+<span class="line"><span class="kn">m</span> <span class="o">=</span> <span class="kn">p</span><span class="o">-</span><span class="mi">1</span></span>
+
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="s1">f'p: {p}'</span><span class="p">)</span></span>
+<span class="line"><span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="kn">flag_bits</span><span class="p">:</span></span>
+    <span class="line"><span class="n">x</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">random_element</span><span class="p">()</span></span>
+    <span class="line"><span class="k">if</span> <span class="n">bit</span> <span class="o">==</span> <span class="s1">'1'</span><span class="p">:</span></span>
+        <span class="line"><span class="n">y</span> <span class="o">=</span> <span class="n">m</span><span class="o">-</span><span class="n">x</span></span>
+    <span class="line"><span class="k">else</span><span class="p">:</span></span>
+        <span class="line"><span class="n">y</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">random_element</span><span class="p">()</span></span>
+
+    <span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">f'{g</span><span class="o">^</span><span class="n">x</span><span class="p">},</span> <span class="n">g</span><span class="o">^</span><span class="n">y</span><span class="p">)'</span><span class="p">)</span></span>
+</code></pre></div>
+<p>The output file had the p value. It is:</p>
+<code>p = 6596997572802685744626960256235787019476434707654191935397530271983648431547</code>
+<p>So, I used sage to get the value of 'g'. It was:</p>
+<code>g = 2</code>
+<p>As the g is prime, we can use Fermat's Little theorem here.</p>
+<p><code>
+    If p is prime, for every integer a:
+        pow(a, p) = a mod p
+    and, if p is prime and a is an integer coprime with p:
+        pow(a, p-1) = 1 mod p
+</code></p>
+<p>If the bit is 1:</p>
+<p><code>=> y = m - x</code></p>
+<p><code>=> y + x = m</code></p>
+<p><code>=> y + x = p - 1</code></p>
+<p><code>=> g^(y + x) = g^(p - 1)</code></p>
+<p><code>=> g^y + g^x = g^(p - 1)</code></p>
+<p><code>=> g^y + g^x = 1 mod p</code></p>
+
+<p>So, I used this to write the solution.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+<span class="line"><span class="kn">arr</span> <span class="o">=</span> <span class="p">[</span><span class="c1"># Given g^x, g^y output here</span>]</span>
+<span class="line"><span class="kn">p</span> <span class="o">=</span> <span class="mi">6596997572802685744626960256235787019476434707654191935397530271983648431547</span></span>
+<span class="line"><span class="kn">m</span> <span class="o">=</span> <span class="mi">p - 1</span></span>
+<span class="line"></span>
+<span class="line"><span class="kn">flag_bits</span> <span class="o">=</span> <span class="s1">''</span></span>
+<span class="line"><span class="kn">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span></span>
+    <span class="line"><span class="c1"># print(arr[i], arr[i+1])</span></span>
+    <span class="line"><span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">==</span> <span class="p">(</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span><span class="o">%</span> <span class="n">p</span><span class="p">)):</span></span>
+        <span class="line"><span class="n">flag_bits</span> <span class="o">+=</span> <span class="s1">'1'</span></span>
+    <span class="line"><span class="k">else</span><span class="p">:</span></span>
+        <span class="line"><span class="n">flag_bits</span> <span class="o">+=</span> <span class="s1">'0'</span></span>
+    <span class="line"><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flag_bits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span></span>
+        <span class="line"><span class="nb">print</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">flag_bits</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">end</span> <span class="o">=</span> <span class="s1">''</span><span class="p">)</span></span>
+        <span class="line"><span class="n">flag_bits</span> <span class="o">=</span> <span class="s1">''</span></span>
+</code></pre></div>
+<p>UMDCTF{I_d0nt_th1nk_bulby_!s_th3_n3xt_3ul3r_tbh}</p>
+
+<h5>Reduce Thyself</h5>
+<p>This challeng contains description: Go lay down. This refers to the golay code which helps to solve this challenge.</p>
+  
+
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://farmansk.github.io/posts/invaderctf-writeups/">InvaderCTF Writeups
