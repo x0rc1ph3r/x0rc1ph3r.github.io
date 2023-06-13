@@ -209,7 +209,7 @@ I managed to solve a variety of challenges from various categories.</p>
 
 <h5>Numbers</h5>
 <img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/misc/misc3.png loading=lazy width=400 height=400>
-<p>This challenge is a netcat based challenge that asks 100 rounds like above. I have written a code to automate the process.</p>
+<p>This challenge is a netcat based challenge that asks 100 rounds like above question. I have written a code to automate the process.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
 <span class="line"><span class="kn">from</span> <span class="n">pwn</span> <span class="k">import</span> <span class="o">*</span></span>
 <span class="line"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">"challs.n00bzunit3d.xyz"</span><span class="p">,</span> <span class="mi">13541</span><span class="p">)</span></span>
@@ -313,7 +313,96 @@ I managed to solve a variety of challenges from various categories.</p>
 
 <h3>Crypto</h3>
 <h5>MaaS</h5>
-<p>This challenge provided a python file running on netcat. </p>
+<p>This challenge provided a python file running on netcat.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+<span class="line"><span class="kn">import</span> <span class="n">random</span></span>
+<span class="line"><span class="kn">from</span> <span class="n">Crypto</span><span class="o">.</span><span class="n">Util</span><span class="o">.</span><span class="n">number</span> <span class="kn">import</span> <span class="o">*</span></span>
+<span class="line"><span class="n">flag</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'flag.txt'</span><span class="p">).</span><span class="n">read</span><span class="p">()</span></span>
+<span class="line"><span class="n">alpha</span> <span class="o">=</span> <span class="s1">'abcdefghijklmnopqrstuvwxyz'</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span></span>
+<span class="line"><span class="n">to_guess</span> <span class="o">=</span> <span class="s1">''</span></span>
+<span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span></span>
+<span class="line">    <span class="n">to_guess</span> <span class="o">+=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span></span>
+<span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">to_guess</span><span class="p">)):</span></span>
+<span class="line">    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">to_guess</span><span class="p">)</span></span>
+<span class="line">        <span class="n">inp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s1">f'Guessing letter {i}, Enter Guess: '</span><span class="p">))</span></span>
+<span class="line">        <span class="n">guess</span> <span class="o">=</span> <span class="n">inp</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">guess</span> <span class="o">%</span> <span class="nb">ord</span><span class="p">(</span><span class="n">to_guess</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span></span>
+<span class="line"><span class="n">last_guess</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">'Enter Guess: '</span><span class="p">)</span></span>
+<span class="line"><span class="k">if</span> <span class="n">last_guess</span> <span class="o">==</span> <span class="n">to_guess</span><span class="p">:</span></span>
+<span class="line">    <span class="nb">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span></span>
+<span class="line"><span class="k">else</span><span class="p">:</span></span>
+<span class="line">    <span class="nb">print</span><span class="p">(</span><span class="s1">'Incorrect! Bye!'</span><span class="p">)</span></span>
+<span class="line">    <span class="nb">exit</span><span class="p">()</span>
+</code></pre></div>
+<p>After reading the script, I understood that there are three chances to guess each alphabet. So I chose 3 numbers 2, 5, 17 for each trail for each alphabet. I stored the possible values for 2, 5, 17 in three different arrays and took the common element. I automated this whole process.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+  <span class="line"><span class="kn">from</span> <span class="n">pwn</span> <span class="kn">import</span> <span class="o">*</span></span>
+  <span class="line"></span>
+  <span class="line"><span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="s1">"challs.n00bzunit3d.xyz"</span><span class="p">,</span> <span class="mi">51081</span></span>
+  <span class="line"></span>
+  <span class="line"><span class="n">final</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="line"><span class="n">final2</span> <span class="o">=</span> <span class="p">[]</span></span>
+  <span class="line"></span>
+  <span class="line"><span class="k">def</span> <span class="n">IntersecOfSets</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">,</span> <span class="n">arr3</span><span class="p">):</span></span>
+  <span class="line">    <span class="c1"># Converting the arrays into sets</span></span>
+  <span class="line">    <span class="n">s1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">arr1</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">s2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">arr2</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">s3</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">arr3</span><span class="p">)</span></span>
+  <span class="line">    </span>
+  <span class="line">    <span class="c1"># Calculates intersection of</span></span>
+  <span class="line">    <span class="c1"># sets on s1 and s2</span></span>
+  <span class="line">    <span class="n">set1</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>         <span class="c1">#[80, 20, 100]</span></span>
+  <span class="line">    </span>
+  <span class="line">    <span class="c1"># Calculates intersection of sets</span></span>
+  <span class="line">    <span class="c1"># on set1 and s3</span></span>
+  <span class="line">    <span class="n">result_set</span> <span class="o">=</span> <span class="n">set1</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">s3</span><span class="p">)</span>   </span>
+  <span class="line">    </span>
+  <span class="line">    <span class="c1"># Converts resulting set to list</span></span>
+  <span class="line">    <span class="n">final_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result_set</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></span>
+  <span class="line">    <span class="n">final2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></span>
+  <span class="line"></span>
+  <span class="line"><span class="k">def</span> <span class="n">calc</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span></span>
+  <span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">65</span><span class="p">,</span> <span class="mi">91</span><span class="p">):</span></span>
+  <span class="line">        <span class="k">if</span><span class="p">(</span><span class="p">(</span><span class="n">inp</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="n">out</span><span class="p">:</span></span>
+  <span class="line">            <span class="k">if</span> <span class="n">inp</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span></span>
+  <span class="line">                <span class="n">arr1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></span>
+  <span class="line">            <span class="k">elif</span> <span class="n">inp</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span></span>
+  <span class="line">                <span class="n">arr2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></span>
+  <span class="line">            <span class="k">else</span><span class="p">:</span></span>
+  <span class="line">                <span class="n">arr3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></span>
+  <span class="line"></span>
+  <span class="line"><span class="n">input</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'2'</span><span class="p">,</span> <span class="s1">'5'</span><span class="p">,</span> <span class="s1">'17'</span><span class="p">]</span></span>
+  <span class="line"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span></span>
+  <span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span></span>
+  <span class="line">    <span class="n">arr1</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="line">    <span class="n">arr2</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="line">    <span class="n">arr3</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">input</span><span class="p">:</span></span>
+  <span class="line">        <span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></span>
+  <span class="line">        <span class="n">output</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s1">" "</span><span class="p">)[</span><span class="mi">5</span><span class="p">])</span></span>
+  <span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></span>
+  <span class="line">        <span class="n">calc</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">output</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">IntersecOfSets</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">,</span> <span class="n">arr3</span><span class="p">)</span>
+  <span class="line">    <span class="nb">print</span><span class="p">(</span><span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">,</span> <span class="n">arr3</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">final2</span><span class="p">)</span></span>
+  <span class="line"></span>
+  <span class="line"><span class="k">if</span> <span class="n">final</span> <span class="o">==</span> <span class="n">final2</span><span class="p">:</span></span>
+  <span class="line">    <span class="nb">print</span><span class="p">(</span><span class="n">final</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">flag</span> <span class="o">=</span> <span class="s1">''</span></span>
+  <span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">final</span><span class="p">:</span></span>
+  <span class="line">        <span class="n">flag</span> <span class="o">+=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></span>
+  <span class="line">    <span class="nb">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span></span>
+  <span class="line">    <span class="n">result</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">()</span></span>
+  <span class="line">    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></span>
+</code></pre></div>
+<p>n00bz{M0dul0_f7w_1a4d3f5c!}</p>
+
+<h3>Blockchain</h3>
+<h5>To the MOOON!</h5>
+<p>This was a weird challenge. It provided a solidity file. You have to exploit it to get the transaction hash which should be XORed with the given hex to get the flag. There are many flaws here, as TX hash depends on the number of the trancsactions from the address and the function. We can exploit this in many ways.</p>
+
 
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
