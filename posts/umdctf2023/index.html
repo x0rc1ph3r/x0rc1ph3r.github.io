@@ -252,8 +252,100 @@ I only remember few Crypto challenges that I solved because all others were basi
 <p>UMDCTF{I_d0nt_th1nk_bulby_!s_th3_n3xt_3ul3r_tbh}</p>
 
 <h5>Reduce Thyself</h5>
-<p>This challeng contains description: Go lay down. This refers to the golay code which helps to solve this challenge.</p>
+<p>This challenge is similar to the challenge No Padding in picoCTF. This challenge is a netcat based challenge provided with the python file.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python">
+  <span class="kn">import</span> <span class="nn">socket</span>
+  <span class="kn">import</span> <span class="nn">random</span>
+  <span class="kn">import</span> <span class="nn">threading</span>
+  <span class="kn">from</span> <span class="nn">_thread</span> <span class="kn">import</span> <span class="o">*</span>
+  <span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span> <span class="kn">as</span> <span class="n">l2b</span><span class="o">,</span> <span class="n">bytes_to_long</span> <span class="kn">as</span> <span class="n">b2l</span><span class="o">,</span> <span class="n">getPrime</span><span class="o">,</span> <span class="n">isPrime</span><span class="o">,</span> <span class="n">inverse</span>
+  <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">gcd</span>
+  <span class="kn">from</span> <span class="nn">binascii</span> <span class="kn">import</span> <span class="n">hexlify</span><span class="o">,</span> <span class="n">unhexlify</span>
   
+  <span class="n">HOST</span> <span class="o">=</span> <span class="s1">'0.0.0.0'</span>  <span class="c1"># Standard loopback interface address (localhost)</span>
+  <span class="n">PORT</span> <span class="o">=</span> <span class="mi">60003</span>        <span class="c1"># Port to listen on (non-privileged ports are &gt; 1023)</span>
+  <span class="n">FLAG</span> <span class="o">=</span> <span class="nb">open</span>(<span class="s1">'flag.txt'</span>, <span class="s1">'r'</span>).<span class="n">read</span>().<span class="n">strip</span>().<span class="n">encode</span>()
+  
+  <span class="kn">def</span> <span class="n">decrypt</span><span class="p">(</span><span class="n">flag_ct</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+      <span class="n">pt</span> <span class="o">=</span> <span class="s1">'null'</span>
+      <span class="k">if</span> <span class="n">isPrime</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ct</span> <span class="ow">!=</span> <span class="n">flag_ct</span><span class="p">:</span>
+          <span class="n">pt</span> <span class="o">=</span> <span class="n">hexlify</span><span class="p">(</span><span class="n">l2b</span><span class="p">(</span><span class="n">pow</span><span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>.<span class="n">decode</span>()
+      <span class="k">return</span> <span class="n">pt</span>
+  
+  <span class="kn">def</span> <span class="n">gen_params</span><span class="p">():</span>
+      <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+          <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">),</span> <span class="n">getPrime</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+          <span class="n">n</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span>
+          <span class="n">e</span> <span class="o">=</span> <span class="mi">0x10001</span>
+          <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">gcd</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+              <span class="n">d</span> <span class="o">=</span> <span class="n">inverse</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+              <span class="k">break</span>
+      <span class="k">return</span> <span class="n">n</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">d</span>
+  
+  <span class="kn">def</span> <span class="n">threading</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
+      <span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">gen_params</span><span class="p">()</span>
+      <span class="n">flag_ct</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">b2l</span><span class="p">(</span><span class="n">FLAG</span><span class="p">),</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(f<span class="si">"n: {n}\ne: {e}\nd: {d}"</span><span class="p">)</span>
+      <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(f<span class="si">"n: {hex(n)}\ne: {hex(e)}\nflag_ct: {hex(flag_ct)}\n\n"</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+      <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+          <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(b<span class="si">'Gimme ct (hex): '</span><span class="p">)</span>
+          <span class="k">try</span><span class="p">:</span>
+              <span class="n">ct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">).</span><span class="n">strip</span><span class="p">().</span><span class="n">decode</span><span class="p">(),</span> <span class="mi">16</span><span class="p">)</span>
+          <span class="k">except</span> <span class="n">Exception</span> <span class="kn">as</span> <span class="n">e</span><span class="p">:</span>
+              <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(b<span class="si">'invalid ct'</span><span class="p">)</span>
+              <span class="k">break</span>
+          
+          <span class="n">pt</span> <span class="o">=</span> <span class="n">decrypt</span><span class="p">(</span><span class="n">flag_ct</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+          <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(f<span class="si">'result: {pt}\n\n'</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+  
+      <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span> 
+
+  <span class="line"><span class="kd">if</span> <span class="nb">__name__</span> <span class="o">==</span> <span class="s1">"__main__"</span><span class="p">:</span></span>
+  <span class="line"><span class="sd">    with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span></span>
+  <span class="line"><span class="sd">        s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></span>
+  <span class="line"><span class="sd">        s</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">))</span></span>
+  <span class="line"><span class="sd">        s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span></span>
+  <span class="line"><span class="sd">        while</span> <span class="bp">True</span><span class="p">:</span></span>
+  <span class="line"><span class="sd">            conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></span>
+  <span class="line"><span class="sd">            print</span><span class="p">(</span><span class="s1">f'new connection: {addr}'</span><span class="p">)</span></span>
+  <span class="line"><span class="sd">            start_new_thread</span><span class="p">(</span><span class="n">threading</span><span class="p">,</span> <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">))</span></span>
+  <span class="line"><span class="sd">        s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></span>
+</code></pre></div>
+<p>So, basically it provides N, e and c and gives us a chance to decipher something. But the flag directly cannot be deciphered. This is plain RSA so it the following flaw.</p>
+<code>m1^e * m2^e ≡ (m1m2)^e (mod n)</code>
+<p>So, m1^e is the ciphered flag and the code above checks for the m2 cipher isPrime() function, so we have to find a prime that satisfies these conditions. Here is the code:</p>
+<p>At last we get the cipher that has to be sent.i.e., (m1m2)^e. Then the service decrypts this for us. So we finally end up with m1m2. m1 is the flag, so we simply do m1m2/m2 to get the flag.</p>
+
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python">
+<span class="line"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span></span>
+<span class="line"><span class="kn">from</span> <span class="nn">Crypto.Util.number</span> <span class="kn">import</span> <span class="n">long_to_bytes</span> <span class="kn">as</span> <span class="n">l2b</span><span class="p">,</span> <span class="n">bytes_to_long</span> <span class="kn">as</span> <span class="n">b2l</span><span class="p">,</span> <span class="n">getPrime</span><span class="p">,</span> <span class="n">isPrime</span><span class="p">,</span> <span class="n">inverse</span></span>
+<span class="line"></span>
+<span class="line"><span class="n">n</span> <span class="o">=</span> <span class="mi">0x7c60c7769c411fe882a246eae7a0303d45e80f3559e850479e0db7960048b4bb4432163d20a445eaa16bcecb05757915e1efa8965d8bf0e65bdc01fe7ea136e79eeea009a28089d5de0f2046f76c1b5cac0b3013897ba2800db88510a42990a35abe23b57879c4b7c179a1e3001fb204a0c17f764f7257cb96e7825bc472489af4a355c0881815f3b63d53bec1f794ea0603bdf7df8a52a808da2f877e85c71c1c991081d32ce9ac4ab509825d2bdeacd252960da9a981ed0d940b3c5a872cc41face6c34823b45946f9667b8f38d22951fe17350c8049d5ea72a6bf1548127d210ac2330fcb6ed862ab82302fcc4335d19257588910a8beebba5879c8c63d29</span></span>
+<span class="line"><span class="n">e</span> <span class="o">=</span> <span class="mi">0x10001</span></span>
+<span class="line"><span class="n">c</span> <span class="o">=</span> <span class="mi">0x6e1c336f218028b7fc0c7604cb8efbe0a1f2ec2d51efd4b230de4750974deb6d8ed385c27790cb3159c70282ce7f14fd93051929a935d4789078a37ee39168a92605a53d290f8496e142bb95ccb3d82c9ae3300ea6b6b5cf15856529fadeef102ddd09a360e356756a8e7e6f26d1e8a3b811c5c7215307aeadcc3d9959382675e8c2562fafb914e86a5a35a75ec7fe3a1b704a3c7322df7ae8659e816027eddc66a46cd58821bda266e55b22b4b3a118dc90593aaba137fe2bd976a20277d4fb608fec9cfa974d139fab3b16bba5694974c6e160eead05188415188b0f3ca376bef98d060e987ce76b232ffe1fa47350e1a9066b812ef258e05bf7a70a8d6f5a</span></span>
+<span class="line"></span>
+<span class="line"><span class="n">t</span> <span class="o">=</span> <span class="mi">0</span></span>
+<span class="line"><span class="n">tosend</span> <span class="o">=</span> <span class="mi">0</span></span>
+<span class="line"><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3000</span><span class="p">):</span></span>
+<span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">pow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span><span class="o">%</span><span class="n">n</span></span>
+<span class="line">    <span class="k">if</span> <span class="n">isPrime</span><span class="p">(</span><span class="n">a</span><span class="p">):</span></span>
+<span class="line">        <span class="n">t</span> <span class="o">=</span> <span class="n">i</span></span>
+<span class="line">        <span class="n">tosend</span> <span class="o">=</span> <span class="n">hex</span><span class="p">(</span><span class="n">a</span><span class="p">)</span></span>
+<span class="line">        <span class="k">break</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">tosend</span><span class="p">)</span></span>
+<span class="line"></span>
+<span class="line"><span class="c1"># This is generated output from the service</span></span>
+<span class="line"><span class="n">final</span> <span class="o">=</span> <span class="mi">0x03aafc896d25afdaea1c0f3ee6a719b7d42d357d4c7b60d42009de58007af1610251de366b0222e14afcada4a833d1e38f8acea3c5e39a9ac5fa</span></span>
+<span class="line"></span>
+<span class="line"><span class="n">final</span> <span class="o">=</span> <span class="n">final</span><span class="o">//</span><span class="n">t</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">l2b</span><span class="p">(</span><span class="n">final</span><span class="p">).</span><span class="n">decode</span><span class="p">())</span></span>
+</code></pre></div>
+<p>UMDCTF{s3lf_r3duc!bility_1s_n0t_ju5t_f0r_DH_97912837923}</p>
+
+<h5>Noisy Bits</h5>
+<p>This challenge had the description saying 'Go lay down', which refers to Golay code. It helped me solve the challenge.</p>
 
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
