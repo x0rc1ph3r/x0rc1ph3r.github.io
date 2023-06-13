@@ -189,7 +189,7 @@
 <p>Hey, there! After a bit gap, I’m back with UMD CTF. I played this CTF along with Invaders0x1 team.
 I only remember few Crypto challenges that I solved because all others were basic stuff.</p>
 <h3 id="Crypto">Crypto</h3>
-<h5 id="BulbEuler">BulbEuler</h5>
+<h5>BulbEuler</h5>
 <p>The challenge provided a sage file and an output file.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sage" data-lang="sage">
 <span class="line"><span class="c1"># This is the code that was given in bulb.sage</span></span>
@@ -346,6 +346,87 @@ I only remember few Crypto challenges that I solved because all others were basi
 
 <h5>Noisy Bits</h5>
 <p>This challenge had the description saying 'Go lay down', which refers to Golay code. It helped me solve the challenge.</p>
+<p>This challenge provided a python code and an output file.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python">
+<span class="kd">import</span> <span class="nx">random</span>
+
+<span class="nx">POLY</span> <span class="o">=</span> <span class="mi">0xC75</span>
+<span class="nx">FLAG_BIN_LENGTH</span> <span class="o">=</span> <span class="mi">360</span>
+
+<span class="kd">def</span> <span class="nf">encode</span><span class="p">(</span><span class="nx">cw</span><span class="p">):</span>
+  <span class="nx">cw</span> <span class="o">=</span> <span class="p">(</span><span class="nx">cw</span> <span class="o">&amp;</span> <span class="mi">0xfff</span><span class="p">)</span>
+  <span class="nx">c</span> <span class="o">=</span> <span class="nx">cw</span>
+  <span class="k">for</span> <span class="nx">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nx">cw</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="nx">cw</span> <span class="o">=</span> <span class="nx">cw</span> <span class="o">^</span> <span class="nx">POLY</span>
+    <span class="nx">cw</span> <span class="o">=</span> <span class="nx">cw</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="nx">cw</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">|</span> <span class="nx">c</span>
+
+
+<span class="nx">flag</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'crypto/Noisy Bits/flag.txt'</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">).</span><span class="nx">read</span><span class="p">()</span>
+
+<span class="nx">binary_str</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">from_bytes</span><span class="p">(</span><span class="nx">flag</span><span class="p">,</span> <span class="s1">'big'</span><span class="p">)))</span><span class="o">[</span><span class="mi">2</span><span class="o">:]</span><span class="o">.</span><span class="nx">zfill</span><span class="p">(</span><span class="nx">FLAG_BIN_LENGTH</span><span class="p">)</span>
+
+<span class="nx">blocks</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">''</span><span class="o">.</span><span class="nx">join</span><span class="p">([</span><span class="nx">binary_str</span><span class="p">[</span><span class="mi">12</span><span class="o">*</span><span class="nx">i</span><span class="o">+</span><span class="nx">j</span><span class="p">]</span> <span class="k">for</span> <span class="nx">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)])</span> <span class="k">for</span> <span class="nx">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nx">FLAG_BIN_LENGTH</span> <span class="o">//</span> <span class="mi">12</span><span class="p">)])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nx">blocks</span><span class="p">)</span>
+<span class="nx">block_nos</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="nx">s</span> <span class="ow">in</span> <span class="nx">blocks</span> <span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="nx">block_nos</span><span class="p">)</span>
+
+<span class="nx">encoded</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">encode</span><span class="p">(</span><span class="nx">cw</span><span class="p">)</span> <span class="k">for</span> <span class="nx">cw</span> <span class="ow">in</span> <span class="nx">block_nos</span> <span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="nx">encoded</span><span class="p">)</span>
+
+<span class="c1"># flip some bits for fun</span>
+<span class="k">for</span> <span class="nx">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">encoded</span><span class="p">)):</span>
+  <span class="nx">encoded</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">encoded</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">^</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="nx">random</span><span class="o">.</span><span class="nx">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">22</span><span class="p">))</span>
+  <span class="nx">encoded</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">encoded</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">^</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="nx">random</span><span class="o">.</span><span class="nx">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">22</span><span class="p">))</span>
+  <span class="nx">encoded</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">encoded</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">^</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="nx">random</span><span class="o">.</span><span class="nx">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">22</span><span class="p">))</span>
+
+<span class="nx">encoded_bin</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">bin</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="o">[</span><span class="mi">2</span><span class="o">:]</span><span class="o">.</span><span class="nx">zfill</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span> <span class="k">for</span> <span class="nx">e</span> <span class="ow">in</span> <span class="nx">encoded</span> <span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">' '.join(encoded_bin)</span><span class="p">)</span>
+</code></pre></div>
+<p>As each bit was flipped three times, I have used hamming distance &lt;= 3 to get the flag. Below is the code:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python">
+<span class="nx">POLY</span> = <span class="nb">0xC75</span>
+
+<span class="nx">codewords</span> = [<span class="p"># Output file</span>]
+
+<span class="nx">def</span> <span class="np">golay</span>(cw):
+  cw = (cw <span class="mi">&amp;</span> <span class="nb">0xfff</span>)
+  c = cw
+  <span class="nx">for</span> i <span class="nx">in</span> <span class="np">range</span>(<span class="nb">1</span>, <span class="nb">12</span>+<span class="nb">1</span>):
+      <span class="nx">if</span> cw <span class="mi">&amp;</span> <span class="nb">1</span> != <span class="nb">0</span>:
+          cw = cw <span class="mi">^</span> <span class="nx">POLY</span>
+      cw = cw <span class="mi">&gt;&gt;</span> <span class="nb">1</span>
+
+  <span class="nx">return</span> (cw <span class="mi">&lt;&lt;</span> <span class="nb">12</span>) <span class="mi">|</span> c
+
+<span class="nx">def</span> <span class="np">hamming_dist</span>(x, y):
+  s1 = bin(x)[<span class="nb">2</span>:].zfill(<span class="nb">23</span>)
+  s2 = bin(y)[<span class="nb">2</span>:].zfill(<span class="nb">23</span>)
+  <span class="nx">return</span> <span class="np">sum</span>(c1 != c2 <span class="nx">for</span> c1, c2 <span class="nx">in</span> <span class="np">zip</span>(s1, s2))
+
+<span class="nx">valid_words</span> = {}
+<span class="nx">for</span> i <span class="nx">in</span> <span class="np">range</span>(<span class="nb">0</span>, <span class="nb">2</span>**<span class="nb">12</span>):
+  valid_words[golay(i)] = i
+
+flag_binary = ''
+<span class="nx">for</span> cw <span class="nx">in</span> codewords:
+  <span class="nx">for</span> k <span class="nx">in</span> valid_words.keys():
+      <span class="nx">if</span> hamming_dist(cw, k) <span class="mi">&lt;=</span> <span class="nb">3</span>:
+          flag_binary += bin(valid_words[k])[<span class="nb">2</span>:].zfill(<span class="nb">12</span>)
+flag = ''
+<span class="nx">for</span> bit <span class="nx">in</span> flag_binary:
+  <span class="nx">if</span> <span class="nb">len</span>(flag) <span class="mi">==</span> <span class="nb">8</span>:
+      <span class="nx">print</span>(<span class="nx">chr</span>(<span class="nb">int</span>(flag, <span class="nb">2</span>)), <span class="nx">end</span> = '')
+      flag = ''
+  flag += bit
+</code></pre></div>
+
+<p>UMDCTF{n0i5y_ch4nn3l5_ar3_n0t_@_pr0bleM_4_u}</p>
+
 
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
