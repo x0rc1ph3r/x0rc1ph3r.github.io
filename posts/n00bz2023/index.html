@@ -185,16 +185,77 @@
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 min read
   </span><a href="https://farmansk.github.io/categories/ctf/" class="badge rounded-pill text-white bg-primary post-taxonomy">CTF</a><a href="https://farmansk.github.io/categories/writeups/" class="badge rounded-pill text-white bg-primary post-taxonomy">WriteUps</a><a href="https://farmansk.github.io/categories/security/" class="badge rounded-pill text-white bg-primary post-taxonomy">Security</a><a href="https://farmansk.github.io/tags/misc/" class="badge rounded-pill text-white bg-primary post-taxonomy">Misc</a></div>
-<div class="post-content mb-3"><p>Sup?!</p>
+<p class="post-content mb-3"><p>Sup?!</p>
 <p>Hey, there! This time, I’m back with n00bz CTF. I played this CTF along with Invaders0x1 team.
 I managed to solve a variety of challenges from various categories.</p>
 <h3>Misc</h3>
 <h5>Amazing Song Lyrics</h5>
-<img class=img-fluid alt="UMDCTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/misc/misc1.png loading=lazy width=955 height=382>
+<p>This challenge had given a image with American Sign Language.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/misc/misc1.png loading=lazy width=400 height=400>
+<p>I used decode.fr website to recover the flag.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/misc/misc1sc.png loading=lazy width=955 height=382>
+<p>n00bz{americansignlanguagedecoded}</p>
+
+<h5>My Chemical Romance</h5>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/misc/misc2.png loading=lazy width=400 height=400>
+<p>This challenge is a periodic table cipher.
+18 - Argon (Ar)
+68 - Erbium (Er)
+08 - Oxygen (O)
+15 - Phosphorus (P)
+57 - Lanthanum (La)
+10 - Neon (Ne)
+</p><p>n00bz{aeroplane}</p>
+
+<h5>Numbers</h5>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/misc/misc3.png loading=lazy width=400 height=400>
+<p>This challenge is a netcat based challenge that asks 100 rounds like above. I have written a code to automate the process.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+<span class="line"><span class="kn">from</span> <span class="n">pwn</span> <span class="k">import</span> <span class="o">*</span></span>
+<span class="line"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">"challs.n00bzunit3d.xyz"</span><span class="p">,</span> <span class="mi">13541</span><span class="p">)</span></span>
+<span class="line"></span>
+<span class="line"><span class="k">def</span> <span class="n">count_nums</span><span class="p">(</span><span class="n">dig</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span></span>
+<span class="line">    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span></span>
+<span class="line">    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span></span>
+<span class="line">        <span class="n">count</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">).</span><span class="n">count</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dig</span><span class="p">))</span></span>
+<span class="line">    <span class="k">return</span> <span class="n">count</span></span>
+<span class="line"></span>
+<span class="line"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span></span>
+<span class="line">    <span class="k">try</span><span class="p">:</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">())</span></span>
+<span class="line">        <span class="n">out</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s1">" "</span><span class="p">)</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></span>
+<span class="line">        <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'\'s'</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'?\n'</span><span class="p">))</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></span>
+<span class="line">        <span class="n">to_send</span> <span class="o">=</span> <span class="n">count_nums</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">to_send</span><span class="p">)</span></span>
+<span class="line">        <span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">to_send</span><span class="p">))</span></span>
+<span class="line">        <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">())</span></span>
+<span class="line">    <span class="k">except</span> <span class="n">EOFError</span><span class="p">:</span></span>
+<span class="line">        <span class="n">exit</span><span class="p">()</span></span>
+</code></pre></div>
+<p>n00bz{4n_345y_pr0gr4mm1ng_ch4ll}</p>
+
+<h3>Forensics</h3>
+<h5>Hecked</h5>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/forensics/foren1.png loading=lazy width=400 height=500>
+<p>This challenge provided a pcap file, which on inspection with WireShark, helped me to get the flag.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/forensics/foren1sc1.png loading=lazy>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/forensics/foren1sc2.png loading=lazy>
+<p>I used these details and converted them to md5 sum.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=https://farmansk.github.io/posts/n00bz2023/images/forensics/md5sum.png loading=lazy>
+<p>n00bz{a806fef72a92508b7a64776bb83ad4cb}</p>
+
+<h5>LSB</h5>
+<p>This challenge provided a wav file. The challenge name LSB refers to Least Significant Bit. I referred to this <a href="https://github.com/ragibson/Steganography#WavSteg">https://github.com/ragibson/Steganography#WavSteg</a> for the tools and commands and finally got the flag.</p>
+<img class=img-fluid alt="n00bz CTF 2023" src=./images/forensics/cmds.png loading=lazy>
+<p>n00bz{L5B_1n_w4v_f1l3s?!!!}</p>
+
+<
 
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://farmansk.github.io/posts/invaderctf-writeups/">InvaderCTF Writeups
+    <a href="https://farmansk.github.io/posts/umdctf2023/">UMDCTF Writeups
 </a>
   </div></div><section class="related-posts-wrapper">
     <h3>Related Posts</h3>
