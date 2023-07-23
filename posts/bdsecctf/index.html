@@ -191,7 +191,7 @@
 <h5>Ghost</h5>
 <p>This challenge provided an ELF file. From Ghidra, this was the main function</p>
 <img class=img-fluid alt="BDSec CTF 2023" src=./images/pwn/ghostcode.png loading=lazy>
-<p>After analyzing the code, I understood that we need to trigger the if condition to spit out the flag. We can see that the size of local_168 array is 64. So, the chars after 64 chars will be copied to local_128. So, I used pwntools to solve this.</p>
+<p>After analyzing the code, I understood that we need to trigger the if condition to spit out the flag. Here, the vulnerability is in the gets() function.The gets() function does not perform bounds checking. We can see that the size of local_168 array is 64. So, the chars after 64 chars will be written in memory of local_128, making the if condition true if we pass the correct value (0x44434241 here). So, I used pwntools to solve this.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
 <span class="line"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="p">*</span></span>
 <span class="line"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">"139.144.184.150"</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span></span>
