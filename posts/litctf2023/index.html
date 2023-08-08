@@ -200,7 +200,7 @@ I have got very less time, but I managed to solve challenges from few categories
 <p>LITCTF{oOps_sh0uld_h4v3_us3d_str1ct_c0mp4r1sons}</p>
 
 <h5>amogsus-api</h5>
-<p>This challenge was an API, which had routes to signup, login, get account detalis, update account details and get flag. The vulnerability was in the update route. It didnt have proper checks. The user model had a data field sus, which was set to 0 by default. So, I used the update route and set the username to admin to change in the SQl db. It changed the value of sus to 1 and I got the flag.</p>
+<p>This challenge was an API, which had routes to signup, login, get account detalis, update account details and get flag. The vulnerability was in the update route. It didnt have proper checks. The user model had a data field sus, which was set to 0 by default. So, I used the update route and set the username to admin to make changes in the SQL db. I changed the value of sus to 1 with username admin and some random password and got the flag.</p>
 <img class=img-fluid alt="TFC CTF 2023" src="./images/web/amogsus.png" loading="lazy">
 <p>LITCTF{1njeC7_Th3_sUs_Am0ng_U5}</p>
 
