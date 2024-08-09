@@ -2,9 +2,9 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Series on farmansk&#39;s Blog</title>
-    <link>https://farmansk.github.io/series/</link>
+    <link>https://x0rc1ph3r.github.io/series/</link>
     <description>Recent content in Series on farmansk&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <copyright>Copyright © 2022-{year} Farman Shaik. All Rights Reserved.</copyright><atom:link href="https://farmansk.github.io/series/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>Copyright © 2022-{year} Farman Shaik. All Rights Reserved.</copyright><atom:link href="https://x0rc1ph3r.github.io/series/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
